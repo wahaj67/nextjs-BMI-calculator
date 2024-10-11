@@ -1,101 +1,130 @@
-import Image from "next/image";
+"use client"; // Enables client-side rendering for this component
 
-export default function Home() {
+// Import necessary hooks from React
+import { useState, ChangeEvent } from "react";
+
+// Import custom UI components from the UI directory
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+// Define a TypeScript interface for the BMI result
+interface BmiResult {
+  bmi: string;
+  category: string;
+}
+
+// Default export of the BmiCalculator function
+export default function BmiCalculator() {
+  // State hooks for managing height, weight, BMI result, and error message
+  const [height, setHeight] = useState<string>("");
+  const [weight, setWeight] = useState<string>("");
+  const [result, setResult] = useState<BmiResult | null>(null);
+  const [error, setError] = useState<string>("");
+
+  // Handler for updating height state on input change
+  const handleHeightChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setHeight(e.target.value);
+  };
+
+  // Handler for updating weight state on input change
+  const handleWeightChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setWeight(e.target.value);
+  };
+
+  // Function to calculate the BMI and determine the category
+  const calculateBmi = (): void => {
+    if (!height || !weight) {
+      setError("Please enter both height and weight."); // Alert if either input is empty
+      return;
+    }
+
+    const heightInMeters = parseFloat(height) / 100;
+    if (heightInMeters <= 0) {
+      setError("Height must be a positive number."); // Alert if height is not positive
+      return;
+    }
+
+    const weightInKg = parseFloat(weight);
+    if (weightInKg <= 0) {
+      setError("Weight must be a positive number."); // Alert if weight is not positive
+      return;
+    }
+
+    const bmiValue = weightInKg / (heightInMeters * heightInMeters); // Calculate the BMI value
+    let category = "";
+
+    if (bmiValue < 18.5) {
+      category = "Underweight"; // Set category based on BMI value
+    } else if (bmiValue >= 18.5 && bmiValue < 25) {
+      category = "Normal";
+    } else if (bmiValue >= 25 && bmiValue < 30) {
+      category = "Overweight";
+    } else {
+      category = "Obese";
+    }
+
+    setResult({ bmi: bmiValue.toFixed(1), category }); // Set the BMI result state
+    setError(""); // Clear any previous error message
+  };
+
+  // JSX return statement rendering the BMI calculator UI
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+      {/* Center the BMI calculator card within the screen */}
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          {/* Header with title and description */}
+          <CardTitle>BMI Calculator</CardTitle>
+          <CardDescription>
+            Enter your height and weight to calculate your BMI.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Input for height */}
+          <div className="grid gap-2">
+            <Label htmlFor="height">Height (cm)</Label>
+            <Input
+              id="height"
+              type="number"
+              placeholder="Enter your height"
+              value={height}
+              onChange={handleHeightChange}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          </div>
+          {/* Input for weight */}
+          <div className="grid gap-2">
+            <Label htmlFor="weight">Weight (kg)</Label>
+            <Input
+              id="weight"
+              type="number"
+              placeholder="Enter your weight"
+              value={weight}
+              onChange={handleWeightChange}
+            />
+          </div>
+          {/* Button to calculate BMI */}
+          <Button onClick={calculateBmi}>Calculate</Button>
+          {/* Display error message if any */}
+          {error && <div className="text-red-500 text-center">{error}</div>}
+          {/* Display BMI result if available */}
+          {result && (
+            <div className="grid gap-2">
+              <div className="text-center text-2xl font-bold">{result.bmi}</div>
+              <div className="text-center text-muted-foreground">
+                {result.category}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
